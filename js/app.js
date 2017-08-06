@@ -3,14 +3,13 @@ var $ = new DisplayJS(window);
 
 var count = $.select(".todos").length;
 var App = {
-	completed: function() {
+	complete: function() {
 		$.all($.select(".toggle"), function(el) {
 			$.on(el, "click", function() {
 				$.toggleClass($.parent($.s(this),1), "completed");
 			});
 		})
 	},
-
 	destroy: function() {
 		$.all($.select(".destroy"), function(el) {
 			$.on(el, "click", function() {
@@ -66,6 +65,13 @@ var App = {
 			$.hide($.select(".main"))
 			$.hide($.select(".footer"))
 		}
+		var routes = {
+			"/active": App.active,
+			"/completed": App.completed,
+			"/": App.all
+		}
+		var router = Router(routes);
+		router.init();
 	},
 	new: function() {
 		$.on($.select(".new-todo"), "keypress", function(e) {
@@ -76,56 +82,56 @@ var App = {
 		    }
 		});
 	},
-	filter: function() {
-		$.all($.select(".filter"), function(el) {
-			$.on(el, "click", function() {
-				$.all($.select(".filter"), function(el) {
-					$.removeClass(el, "selected")
-				})
-				$.addClass([this], "selected")
-				var text = this.innerHTML;
-				if (text == "All") {
-					$.all($.select(".todos"), function(el) {
-						$.show(el)
-					})
-				}
-				else if (text == "Completed") {
-					$.all($.select(".todos"), function(el) {
-						if (!$.hasClass(el, "completed")) {
-							$.hide(el)
-						} else {
-							$.show(el)
-						}
-					})
-				}
-				else if (text == "Active") {
-					$.all($.select(".todos"), function(el) {
-						if ($.hasClass(el, "completed")) {
-							$.hide(el)
-						} else {
-							$.show(el)
-						}
-					})
-				}
-				init()
-			})
+	all: function() {
+		$.all($.select(".todos"), function(el) {
+			$.show(el)
 		})
+		$.all($.s(".filter"), function(el) {
+			$.removeClass(el, "selected");
+		})
+		$.addClass([$.s(".filter")[0]], "selected")
+	},
+	completed: function() {
+		$.all($.select(".todos"), function(el) {
+			if (!$.hasClass(el, "completed")) {
+				$.hide(el)
+			} else {
+				$.show(el)
+			}
+		})
+		$.all($.s(".filter"), function(el) {
+			$.removeClass(el, "selected");
+		})
+		$.addClass([$.s(".filter")[2]], "selected")
+	},
+	active: function() {
+		$.all($.select(".todos"), function(el) {
+			if ($.hasClass(el, "completed")) {
+				$.hide(el)
+			} else {
+				$.show(el)
+			}
+		})
+		$.all($.s(".filter"), function(el) {
+			$.removeClass(el, "selected");
+		})
+		$.addClass([$.s(".filter")[1]], "selected")
 	}
 	
-}
+};
 function init () {
 	// recount the number of items.
 	count = $.select(".todos").length;
 	// invoke all the functions.
-	App.completed();
+	App.complete();
 	App.destroy();
 	App.clear();
 	App.edit();
 	App.toggle_all();
 	App.new();
-	App.filter();
 	App.init();
 }
-init() 
 // Rendering everything every 250 ms.
-$.var(250)
+$.var(250);
+
+init();
